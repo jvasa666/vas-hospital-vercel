@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAS-AI-Hospital - Live Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .loading {
+            color: #ffc107;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .stat {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 VAS-AI-Hospital</h1>
+            <div class="badge">🚀 LIVE ON VERCEL</div>
+            <p style="margin-top: 10px; color: #666;">
+                Full-Stack Medical Management System with AI-Powered Clinical Decision Support
+            </p>
+            <div style="margin-top: 15px;">
+                <span class="stat">✅ AI Gateway</span>
+                <span class="stat">✅ Patient Service</span>
+                <span class="stat">✅ Clinical Service</span>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>🤖 AI Gateway Tests</h2>
+                <button onclick="testCapabilities()">List Capabilities</button>
+                <button onclick="testEncryption()">Test Encryption</button>
+                <button onclick="testSepsis()">Sepsis Detection</button>
+                <button onclick="testDrugInteraction()">Drug Interaction</button>
+                <pre class="result" id="ai-result">Click a button to test AI capabilities...</pre>
+            </div>
+            
+            <div class="card">
+                <h2>👥 Patient Service Tests</h2>
+                <button onclick="testPatients()">List Patients</button>
+                <button onclick="testPatient('P001')">Get Patient P001</button>
+                <button onclick="testPatient('MRN001002')">Get by MRN</button>
+                <pre class="result" id="patient-result">Click a button to test patient service...</pre>
+            </div>
+            
+            <div class="card">
+                <h2>⚕️ Clinical Service Tests</h2>
+                <button onclick="testClinical()">List Encounters</button>
+                <button onclick="testReadmission()">Readmission Risk</button>
+                <pre class="result" id="clinical-result">Click a button to test clinical service...</pre>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function callAPI(endpoint, options = {}) {
+            const resultId = options.resultId || 'ai-result';
+            const resultEl = document.getElementById(resultId);
+            resultEl.innerHTML = '<span class="loading">⏳ Loading...</span>';
+            
+            try {
+                const response = await fetch(endpoint, options);
+                const data = await response.json();
+                resultEl.innerHTML = '<span class="success">✅ Success</span>\n\n' + 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultEl.innerHTML = '<span class="error">❌ Error</span>\n\n' + error.message;
+            }
+        }
+        
+        function testCapabilities() {
+            callAPI('/api/ai-gateway/capabilities', { resultId: 'ai-result' });
+        }
+        
+        function testEncryption() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'data:encrypt',
+                    terms: { plaintext: '123-45-6789' }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testSepsis() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'clinical:sepsis_risk',
+                    terms: {
+                        vitals: {
+                            temperature: 102.5,
+                            heart_rate: 120,
+                            bp_systolic: 90,
+                            wbc_count: 16.8
+                        }
+                    }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testDrugInteraction() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'clinical:drug_interaction',
+                    terms: {
+                        medications: ['warfarin', 'aspirin', 'lisinopril']
+                    }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testPatients() {
+            callAPI('/api/patients', { resultId: 'patient-result' });
+        }
+        
+        function testPatient(id) {
+            callAPI(`/api/patients/${id}`, { resultId: 'patient-result' });
+        }
+        
+        function testClinical() {
+            callAPI('/api/clinical', { resultId: 'clinical-result' });
+        }
+        
+        function testReadmission() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'analytics:readmission_risk',
+                    terms: {
+                        patient_data: {
+                            age: 72,
+                            chronic_conditions: 3,
+                            previous_admissions_30d: 1
+                        }
+                    }
+                }),
+                resultId: 'clinical-result'
+            });
+        }
+        
+        // Auto-test on load
+        setTimeout(() => {
+            testCapabilities();
+        }, 500);
+    </script>
+</body>
+</html>

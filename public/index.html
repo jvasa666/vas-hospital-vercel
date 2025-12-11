@@ -7,12 +7,15 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
             background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #01579b 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
         .header {
             background: white;
             padding: 40px;
@@ -27,14 +30,48 @@
             font-size: 3em;
             margin-bottom: 10px;
             font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         .badge {
+            display: inline-block;
             background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
             color: white;
             padding: 10px 25px;
             border-radius: 30px;
             font-weight: bold;
+            font-size: 0.95em;
             box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+        }
+        .subtitle {
+            margin-top: 15px;
+            color: #546e7a;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .status-bar {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0d47a1;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9em;
+            border: 2px solid #1976d2;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
         }
         .card {
             background: white;
@@ -42,13 +79,19 @@
             border-radius: 20px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             border-top: 4px solid #1976d2;
-            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
         }
         .card h2 {
             color: #1565c0;
             margin-bottom: 20px;
             border-bottom: 3px solid #1976d2;
             padding-bottom: 12px;
+            font-size: 1.5em;
+            font-weight: 600;
         }
         button {
             background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
@@ -57,12 +100,20 @@
             padding: 12px 24px;
             border-radius: 10px;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
             margin: 5px;
+            transition: all 0.3s;
             box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
         }
         button:hover {
             background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.5);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
         }
         .result {
             background: #263238;
@@ -70,10 +121,63 @@
             padding: 20px;
             border-radius: 12px;
             margin-top: 20px;
-            font-family: monospace;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
             overflow-x: auto;
             max-height: 450px;
             overflow-y: auto;
+            border: 2px solid #37474f;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .result::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        .result::-webkit-scrollbar-track {
+            background: #1a237e;
+            border-radius: 10px;
+        }
+        .result::-webkit-scrollbar-thumb {
+            background: #1976d2;
+            border-radius: 10px;
+        }
+        .loading {
+            color: #ffa726;
+            font-weight: bold;
+        }
+        .success {
+            color: #66bb6a;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef5350;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .footer a {
+            color: #90caf9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer a:hover {
+            color: #64b5f6;
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
@@ -82,19 +186,157 @@
         <div class="header">
             <h1>🏥 VAS-AI-Hospital</h1>
             <div class="badge">🚀 LIVE ON VERCEL</div>
+            <p class="subtitle">
+                Enterprise Medical Management System with AI-Powered Clinical Decision Support
+            </p>
+            <div class="status-bar">
+                <span class="stat">✅ AI Gateway Online</span>
+                <span class="stat">✅ Patient Service Active</span>
+                <span class="stat">✅ Clinical Service Ready</span>
+            </div>
         </div>
-        <div class="card">
-            <h2>🤖 AI Gateway</h2>
-            <button onclick="test()">Test API</button>
-            <pre class="result" id="result">Ready</pre>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>🤖 AI Gateway Tests</h2>
+                <button onclick="testCapabilities()">📋 List Capabilities</button>
+                <button onclick="testEncryption()">🔒 Test Encryption</button>
+                <button onclick="testSepsis()">⚠️ Sepsis Detection</button>
+                <button onclick="testDrugInteraction()">💊 Drug Interaction</button>
+                <pre class="result" id="ai-result">Click a button to test AI capabilities...</pre>
+            </div>
+            
+            <div class="card">
+                <h2>👥 Patient Service Tests</h2>
+                <button onclick="testPatients()">📊 List All Patients</button>
+                <button onclick="testPatient('P001')">🔍 Get Patient P001</button>
+                <button onclick="testPatient('MRN001002')">🏷️ Get by MRN</button>
+                <pre class="result" id="patient-result">Click a button to test patient service...</pre>
+            </div>
+            
+            <div class="card">
+                <h2>⚕️ Clinical Service Tests</h2>
+                <button onclick="testClinical()">📋 List Encounters</button>
+                <button onclick="testReadmission()">📈 Readmission Risk</button>
+                <button onclick="testHealthCheck()">💚 Health Check</button>
+                <pre class="result" id="clinical-result">Click a button to test clinical service...</pre>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <strong>VAS-AI-Hospital</strong> | Secure, Compliant, AI-Enhanced Healthcare
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Deployed on <a href="https://vercel.com" target="_blank">Vercel</a> | 
+                View on <a href="https://github.com/jvasa666/vas-hospital-vercel" target="_blank">GitHub</a>
+            </p>
         </div>
     </div>
+    
     <script>
-        async function test() {
-            const res = await fetch('/api/ai-gateway/capabilities');
-            const data = await res.json();
-            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        async function callAPI(endpoint, options = {}) {
+            const resultId = options.resultId || 'ai-result';
+            const resultEl = document.getElementById(resultId);
+            resultEl.innerHTML = '<span class="loading">⏳ Loading...</span>';
+            
+            try {
+                const response = await fetch(endpoint, options);
+                const data = await response.json();
+                resultEl.innerHTML = '<span class="success">✅ Success</span>\n\n' + 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultEl.innerHTML = '<span class="error">❌ Error</span>\n\n' + error.message;
+            }
         }
+        
+        function testCapabilities() {
+            callAPI('/api/ai-gateway/capabilities', { resultId: 'ai-result' });
+        }
+        
+        function testEncryption() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'data:encrypt',
+                    terms: { plaintext: 'SSN:123-45-6789' }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testSepsis() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'clinical:sepsis_risk',
+                    terms: {
+                        vitals: {
+                            temperature: 102.5,
+                            heart_rate: 120,
+                            bp_systolic: 90,
+                            wbc_count: 16.8
+                        }
+                    }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testDrugInteraction() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'clinical:drug_interaction',
+                    terms: {
+                        medications: ['warfarin', 'aspirin', 'lisinopril']
+                    }
+                }),
+                resultId: 'ai-result'
+            });
+        }
+        
+        function testPatients() {
+            callAPI('/api/patients', { resultId: 'patient-result' });
+        }
+        
+        function testPatient(id) {
+            callAPI(`/api/patients/${id}`, { resultId: 'patient-result' });
+        }
+        
+        function testClinical() {
+            callAPI('/api/clinical', { resultId: 'clinical-result' });
+        }
+        
+        function testReadmission() {
+            callAPI('/api/ai-gateway/invoke', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    capability: 'analytics:readmission_risk',
+                    terms: {
+                        patient_data: {
+                            age: 72,
+                            chronic_conditions: 3,
+                            previous_admissions_30d: 1
+                        }
+                    }
+                }),
+                resultId: 'clinical-result'
+            });
+        }
+        
+        function testHealthCheck() {
+            callAPI('/api/ai-gateway', { resultId: 'clinical-result' });
+        }
+        
+        // Auto-test on load
+        setTimeout(() => {
+            testCapabilities();
+        }, 500);
     </script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 // Mock patient database
+// VAS Patients Service - Fixed for Vercel
 const patients = [
   { id: 'P001', mrn: 'MRN001001', first_name: 'James', last_name: 'Anderson', dob: '1945-03-15', status: 'Active' },
   { id: 'P002', mrn: 'MRN001002', first_name: 'Maria', last_name: 'Rodriguez', dob: '1952-07-22', status: 'Active' },
@@ -8,6 +9,7 @@ const patients = [
 ];
 
 module.exports = async (req, res) => {
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,34 +17,45 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
-  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
-  
-  // Get all patients
-  if (req.method === 'GET' && !pathname.match(/\/\d+$/)) {
-    return res.status(200).json({
-      patients,
-      total: patients.length,
-      timestamp: new Date().toISOString()
-    });
-  }
-  
-  // Get patient by ID
-  if (req.method === 'GET' && pathname.match(/\/\w+$/)) {
-    const id = pathname.split('/').pop();
-    const patient = patients.find(p => p.id === id || p.mrn === id);
+
+  try {
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    const pathname = url.pathname;
     
-    if (!patient) {
-      return res.status(404).json({ error: 'Patient not found' });
+    // GET /api/patients - List all
+    if (req.method === 'GET' && (pathname === '/api/patients' || pathname === '/api/patients/')) {
+      return res.status(200).json({
+        patients,
+        total: patients.length,
+        timestamp: new Date().toISOString()
+      });
     }
     
-    return res.status(200).json(patient);
+    // GET /api/patients/:id - Get by ID
+    if (req.method === 'GET' && pathname.match(/\/api\/patients\/.+/)) {
+      const id = pathname.split('/').pop();
+      const patient = patients.find(p => p.id === id || p.mrn === id);
+      
+      if (!patient) {
+        return res.status(404).json({ error: 'Patient not found', id });
+      }
+      
+      return res.status(200).json(patient);
+    }
+    
+    // Default response
+    return res.status(200).json({
+      status: 'UP',
+      service: 'vas-patient-service',
+      total_patients: patients.length,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Error in Patients API:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
+    });
   }
-  
-  // Health check
-  return res.status(200).json({
-    status: 'UP',
-    service: 'vas-patient-service',
-    total_patients: patients.length
-  });
 };
